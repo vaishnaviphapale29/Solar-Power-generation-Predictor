@@ -1,0 +1,32 @@
+2026-10-11 15:28:01,953 - INFO - SOLAR POWER GENERATION PREDICTOR STARTED
+2026-10-11 15:28:01,954 - INFO - STEP 1: LOAD DATASET
+2026-10-11 15:28:02,074 - INFO - Datasets loaded successfully
+2026-10-11 15:28:02,075 - INFO - STEP 2: UNDERSTAND DATASET
+2026-10-11 15:28:02,223 - INFO - STEP 3: DATA PREPROCESSING
+2026-10-11 15:28:02,296 - INFO - Data preprocessing completed
+2026-10-11 15:28:02,297 - INFO - STEP 4: EXPLORATORY DATA ANALYSIS
+2026-10-11 15:28:02,944 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Power_Distribution.png
+2026-10-11 15:28:14,782 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Irradiation_Distribution.png
+2026-10-11 15:28:19,271 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Irradiation_vs_Temperature.png
+2026-10-11 15:28:28,947 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Correlation_Heatmap.png
+2026-10-11 15:28:34,672 - INFO - STEP 5: FEATURE ENGINEERING
+2026-10-11 15:28:34,773 - INFO - Feature engineering completed
+2026-10-11 15:28:34,775 - INFO - STEP 6: PREPARE FEATURES AND TARGET
+2026-10-11 15:28:34,778 - INFO - STEP 7: TRAIN-TEST SPLIT
+2026-10-11 15:28:34,805 - INFO - STEP 8: BUILD MACHINE LEARNING MODELS
+2026-10-11 15:28:34,810 - INFO - STEP 9: TRAIN MODELS
+2026-10-11 15:28:34,816 - INFO - Linear Regression training completed
+2026-10-11 15:28:35,134 - INFO - Random Forest training completed
+2026-10-11 15:28:35,134 - INFO - STEP 10: TIME SERIES CROSS VALIDATION
+2026-10-11 15:28:36,290 - INFO - STEP 11: MODEL EVALUATION
+2026-10-11 15:28:36,336 - INFO - STEP 12: SAVE AND DISPLAY OUTPUTS
+2026-10-11 15:28:36,353 - INFO - Output CSV files saved successfully
+2026-10-11 15:28:36,354 - INFO - STEP 13: VISUALIZE PREDICTIONS
+2026-10-11 15:28:36,904 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Actual_vs_Predicted.png
+2026-10-11 15:28:51,995 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Actual_Predicted_Scatter.png
+2026-10-11 15:28:58,961 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Prediction_Error_Distribution.png
+2026-10-11 15:29:15,334 - INFO - STEP 14: SAVE TRAINED MODEL
+2026-10-11 15:29:15,406 - INFO - Trained model saved successfully
+2026-10-11 15:29:15,407 - INFO - STEP 15: SOLAR POWER PREDICTION
+2026-10-11 15:29:15,531 - INFO - Example prediction completed
+2026-10-11 15:29:15,537 - INFO - PROJECT EXECUTED SUCCESSFULLY
