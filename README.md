@@ -48,7 +48,7 @@ Both models are trained and evaluated to compare their performance.
 ## Project Structure
 ```text
 Solar_Power_Generation_Predictor/
-├── data/
+├── Data/
 │   ├── Plant_1_Generation_Data.csv
 │   └── Plant_1_Weather_Sensor_Data.csv
 ├── images/
