@@ -118,6 +118,75 @@ The model uses the following features:
 
 The target variable represents the AC power output that the model is trained to predict.
 
+## Model Performance
+
+Two Machine Learning models were trained and compared using Time Series Cross-Validation.
+
+| Model | Cross-Validation MAE |
+|---|---:|
+| Linear Regression | 514.2837 |
+| Random Forest | **333.0444** |
+
+**Best Model:** Random Forest Regressor
+
+### Evaluation Results
+
+The Random Forest model was evaluated on the test dataset.
+
+| Metric | Score |
+|---|---:|
+| Mean Absolute Error (MAE) | 249.1383 |
+| Root Mean Squared Error (RMSE) | 526.4474 |
+| R² Score | 0.9956 |
+
+### Dataset Summary
+
+- **Generation Dataset Records:** 68,778
+- **Weather Dataset Records:** 3,182
+- **Processed Dataset Records:** 3,157
+- **Training Records:** 2,525
+- **Testing Records:** 632
+- **Input Features:** 7
+- **Target Variable:** AC_POWER
+
+### Key Findings
+
+- Random Forest performed better than Linear Regression based on cross-validation MAE.
+- The model achieved an R² score of 0.9956 on the test dataset.
+- Irradiation showed a strong correlation with AC power in the processed dataset.
+- The model generated actual-versus-predicted comparisons and prediction visualizations.
+
+### Sample Prediction
+
+**Input:**
+- Ambient Temperature: 25°C
+- Module Temperature: 30°C
+- Irradiation: 0.7
+- Hour: 12
+- Minute: 0
+- Day: 15
+- Month: 6
+
+**Predicted AC Power:** 19,190.302
+
+*Note: This is an example prediction using sample input values.*
+
+### Generated Outputs
+
+- `outputs/Solar_Power_Model.pkl` — Trained Random Forest model
+- `outputs/Processed_Solar_Dataset.csv` — Processed dataset
+- `outputs/Actual_vs_Predicted.csv` — Actual and predicted power values
+- `outputs/Model_Comparison.csv` — Model comparison results
+- `outputs/Evaluation_Metrics.csv` — Evaluation metrics
+- `images/` — Generated charts and visualizations
+
+### Future Improvements
+
+- Experiment with additional regression models and hyperparameter tuning.
+- Evaluate the model on data from different solar plants and time periods.
+- Develop a dashboard for solar power monitoring and prediction.
+- Integrate live weather data for practical power forecasting.
+
 ## Installation and Setup
 
 ### Prerequisites
