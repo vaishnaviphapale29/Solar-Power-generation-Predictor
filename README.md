@@ -1,27 +1,16 @@
 # Solar Power Generation Predictor
 
 ## Project Overview
-
-Solar Power Generation Predictor is a Machine Learning project that predicts solar power generation based on weather conditions.
-
-The project uses historical solar power generation data and weather sensor data to analyze the relationship between environmental conditions and AC power output.
-
-The main goal is to build, evaluate, and save Machine Learning regression models that can predict solar power generation using weather-related and time-based features.
+The Solar Power Generation Predictor is a Machine Learning project that predicts solar power generation using weather conditions and time-based features. It uses historical solar generation and weather data to train and evaluate regression models.
 
 ## Objectives
-
-- Analyze solar power generation data.
-- Perform data cleaning and preprocessing.
-- Conduct Exploratory Data Analysis (EDA).
-- Visualize relationships between weather conditions and power generation.
-- Perform feature engineering.
-- Train and evaluate regression models.
-- Compare model performance.
-- Save the trained model for future predictions.
-- Test the model using new weather data.
+- Predict solar power generation using weather data.
+- Analyze the relationship between weather conditions and AC power.
+- Compare Machine Learning regression models.
+- Evaluate model performance using regression metrics.
+- Visualize actual and predicted power values.
 
 ## Technologies Used
-
 - Python
 - Pandas
 - NumPy
@@ -29,109 +18,54 @@ The main goal is to build, evaluate, and save Machine Learning regression models
 - Seaborn
 - Scikit-learn
 - Joblib
-- Git
-- GitHub
-- Visual Studio Code
-
-## Machine Learning Algorithms
-
-The project uses the following regression algorithms:
-
-1. **Linear Regression**
-2. **Random Forest Regressor**
-
-The models are trained on the prepared dataset and evaluated to compare their prediction performance.
 
 ## Dataset Description
+The project uses two datasets:
 
-This project uses two datasets.
+**1. Generation Dataset**
+- Date and time
+- Plant ID
+- Source key
+- DC power
+- AC power
+- Daily yield
+- Total yield
 
-### 1. Plant 1 Generation Data
-
-File: `Plant_1_Generation_Data.csv`
-
-This dataset contains historical solar power generation information, including AC power, DC power, and related generation measurements.
-
-### 2. Plant 1 Weather Sensor Data
-
-File: `Plant_1_Weather_Sensor_Data.csv`
-
-This dataset contains weather measurements, including ambient temperature, module temperature, and irradiation.
-
-Both datasets are used to study how weather conditions relate to solar power generation.
-
-## Project Structure
-
-```text
-Solar_Power_Generation/
-│
-├── Data/
-│   ├── Plant_1_Generation_Data.csv
-│   └── Plant_1_Weather_Sensor_Data.csv
-│
-├── images/
-│   └── EDA visualization images
-│
-├── outputs/
-│   └── Trained model and generated output files
-│
-├── Solar_Power_Generation_Predictor.py
-├── Test_New_Data.py
-├── requirements.txt
-├── project.log
-└── README.md
-```
+**2. Weather Dataset**
+- Date and time
+- Plant ID
+- Source key
+- Ambient temperature
+- Module temperature
+- Irradiation
 
 ## Project Workflow
-
 1. Load the generation and weather datasets.
-2. Inspect the dataset structure, columns, and data types.
-3. Check and handle missing or inconsistent values.
-4. Prepare and combine the datasets using suitable keys.
-5. Perform Exploratory Data Analysis.
-6. Create visualizations to understand data patterns.
-7. Extract time-based features.
-8. Select input features and the target variable.
-9. Split the data into training and testing sets.
-10. Train Linear Regression and Random Forest Regression models.
-11. Evaluate the models using regression metrics.
-12. Compare model performance.
-13. Save the trained model.
-14. Load the saved model to test new weather conditions.
-15. Display the predicted AC power generation.
-
-## Input Features
-
-The model uses the following features:
-
-- `AMBIENT_TEMPERATURE` — Ambient air temperature.
-- `MODULE_TEMPERATURE` — Solar panel module temperature.
-- `IRRADIATION` — Solar radiation received by the panel.
-- `HOUR` — Hour of the day.
-- `MINUTE` — Minute of the hour.
-- `DAY` — Day of the month.
-- `MONTH` — Month of the year.
-
-## Target Variable
-
-`AC_POWER`
-
-The target variable represents the AC power output that the model is trained to predict.
+2. Understand dataset structure and statistical information.
+3. Clean and preprocess the data.
+4. Perform Exploratory Data Analysis (EDA).
+5. Merge relevant generation and weather information.
+6. Create time-based features such as hour, minute, day, and month.
+7. Select input features and the target variable.
+8. Split data into training and testing sets.
+9. Train Linear Regression and Random Forest models.
+10. Compare models using Time Series Cross-Validation.
+11. Evaluate the selected model.
+12. Save the trained model and output files.
+13. Visualize actual and predicted power values.
 
 ## Model Performance
 
-Two Machine Learning models were trained and compared using Time Series Cross-Validation.
+Two regression models were trained and compared using Time Series Cross-Validation.
 
 | Model | Cross-Validation MAE |
 |---|---:|
 | Linear Regression | 514.2837 |
 | Random Forest | **333.0444** |
 
-**Best Model:** Random Forest Regressor
+**Selected Model:** Random Forest Regressor
 
-### Evaluation Results
-
-The Random Forest model was evaluated on the test dataset.
+### Evaluation Metrics
 
 | Metric | Score |
 |---|---:|
@@ -141,24 +75,23 @@ The Random Forest model was evaluated on the test dataset.
 
 ### Dataset Summary
 
-- **Generation Dataset Records:** 68,778
-- **Weather Dataset Records:** 3,182
-- **Processed Dataset Records:** 3,157
-- **Training Records:** 2,525
-- **Testing Records:** 632
-- **Input Features:** 7
-- **Target Variable:** AC_POWER
+- Generation dataset records: 68,778
+- Weather dataset records: 3,182
+- Processed dataset records: 3,157
+- Training records: 2,525
+- Testing records: 632
+- Input features: 7
+- Target variable: `AC_POWER`
 
 ### Key Findings
-
-- Random Forest performed better than Linear Regression based on cross-validation MAE.
-- The model achieved an R² score of 0.9956 on the test dataset.
+- Random Forest achieved a lower cross-validation MAE than Linear Regression.
+- The selected model achieved an R² score of 0.9956 on the test dataset.
 - Irradiation showed a strong correlation with AC power in the processed dataset.
-- The model generated actual-versus-predicted comparisons and prediction visualizations.
+- The project generated actual-versus-predicted comparisons and prediction visualizations.
 
-### Sample Prediction
+## Sample Prediction
 
-**Input:**
+**Sample input:**
 - Ambient Temperature: 25°C
 - Module Temperature: 30°C
 - Irradiation: 0.7
@@ -171,104 +104,52 @@ The Random Forest model was evaluated on the test dataset.
 
 *Note: This is an example prediction using sample input values.*
 
-### Generated Outputs
+## Visualizations
 
-- `outputs/Solar_Power_Model.pkl` — Trained Random Forest model
-- `outputs/Processed_Solar_Dataset.csv` — Processed dataset
-- `outputs/Actual_vs_Predicted.csv` — Actual and predicted power values
-- `outputs/Model_Comparison.csv` — Model comparison results
-- `outputs/Evaluation_Metrics.csv` — Evaluation metrics
-- `images/` — Generated charts and visualizations
+The project generates the following visualizations:
 
-### Future Improvements
+- `Power_Distribution.png`
+- `Irradiation_Distribution.png`
+- `Irradiation_vs_Temperature.png`
+- `Correlation_Heatmap.png`
+- `Actual_vs_Predicted.png`
+- `Actual_Predicted_Scatter.png`
+- `Prediction_Error_Distribution.png`
 
-- Experiment with additional regression models and hyperparameter tuning.
-- Evaluate the model on data from different solar plants and time periods.
-- Develop a dashboard for solar power monitoring and prediction.
-- Integrate live weather data for practical power forecasting.
+These charts help analyze power distribution, weather relationships, model predictions, and prediction errors.
 
-## Installation and Setup
+## Output Files
 
-### Prerequisites
+The `outputs/` folder contains:
 
-- Python 3.10 or later
-- pip
-- Visual Studio Code or another Python IDE
+- `Processed_Solar_Dataset.csv`
+- `Actual_vs_Predicted.csv`
+- `Model_Comparison.csv`
+- `Evaluation_Metrics.csv`
+- `Solar_Power_Model.pkl`
 
-### Install Required Libraries
+## How to Run the Project
 
-Open the project folder in VS Code and run the following command in the terminal:
+1. Clone or download the repository.
+2. Install the required libraries:
 
 ```bash
-pip install -r requirements.txt
+pip install pandas numpy matplotlib seaborn scikit-learn joblib
 ```
 
-## Run the Main Project
-
-Run the following command to execute the main script:
+3. Run the Python script:
 
 ```bash
 python Solar_Power_Generation_Predictor.py
 ```
 
-The script performs the configured data processing, analysis, model training, evaluation, and model-saving steps.
-
-Make sure both dataset files are available inside the `Data/` folder.
-
-## Test Prediction on New Data
-
-After the main script has successfully trained and saved the model, run:
-
-```bash
-python Test_New_Data.py
-```
-
-This script loads the saved model from the `outputs/` folder and predicts AC power generation using sample weather conditions.
-
-You can modify the weather values inside `Test_New_Data.py` to test different input conditions.
-
-**Note:** Predictions depend on the quality of the dataset, the trained model, and the selected input values.
-
-## Model Evaluation
-
-Regression models can be evaluated using the following metrics:
-
-- **Mean Absolute Error (MAE):** Measures the average absolute difference between actual and predicted values.
-- **Mean Squared Error (MSE):** Measures the average squared prediction error.
-- **Root Mean Squared Error (RMSE):** Measures prediction error in the target variable's units.
-- **R-squared (R²):** Measures how well the model explains variation in the target variable.
-
-The actual evaluation results depend on the trained model and the dataset.
-
-## Project Outputs
-
-The project can generate:
-
-- Exploratory Data Analysis visualizations.
-- Model evaluation results.
-- Prediction and analysis output files.
-- A saved trained Machine Learning model.
-- Execution logs.
-
-Generated files are stored in the appropriate project folders.
-
-## Applications
-
-This project demonstrates how Machine Learning can be used to:
-
-- Analyze the relationship between weather conditions and solar power output.
-- Estimate solar power generation from selected weather inputs.
-- Compare regression algorithms for a prediction task.
-- Build a reusable model for experimentation and learning.
-
-The project is intended for educational and portfolio purposes. It is not a guarantee of real-world solar power output.
+*Ensure the dataset paths in the script match your local folder structure.*
 
 ## Future Improvements
+- Experiment with additional regression algorithms and hyperparameter tuning.
+- Evaluate performance on data from different solar plants and time periods.
+- Integrate live weather data for power forecasting.
+- Develop an interactive dashboard for monitoring solar power generation.
 
-- Experiment with additional regression algorithms.
-- Perform systematic hyperparameter tuning.
-- Improve feature engineering.
-- Develop an interactive prediction interface using Streamlit.
-- Deploy the model as a web application.
-- Evaluate the model on data from additional solar plants.
-- Monitor model performance on new data.
+## Conclusion
+This project demonstrates an end-to-end Machine Learning workflow for solar power prediction, including data preprocessing, exploratory analysis, feature engineering, model comparison, evaluation, and visualization.
