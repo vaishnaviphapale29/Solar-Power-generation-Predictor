@@ -1,32 +1,91 @@
-2026-10-13 12:23:25,030 - INFO - SOLAR POWER GENERATION PREDICTOR STARTED
-2026-10-13 12:23:25,032 - INFO - STEP 1: LOAD DATASET
-2026-10-13 12:23:25,197 - INFO - Datasets loaded successfully
-2026-10-13 12:23:25,197 - INFO - STEP 2: UNDERSTAND DATASET
-2026-10-13 12:23:25,299 - INFO - STEP 3: DATA PREPROCESSING
-2026-10-13 12:23:25,349 - INFO - Data preprocessing completed
-2026-10-13 12:23:25,350 - INFO - STEP 4: EXPLORATORY DATA ANALYSIS
-2026-10-13 12:23:26,267 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Power_Distribution.png
-2026-10-13 12:23:29,247 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Irradiation_Distribution.png
-2026-10-13 12:23:31,051 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Irradiation_vs_Temperature.png
-2026-10-13 12:23:32,985 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Correlation_Heatmap.png
-2026-10-13 12:23:34,516 - INFO - STEP 5: FEATURE ENGINEERING
-2026-10-13 12:23:34,641 - INFO - Feature engineering completed
-2026-10-13 12:23:34,642 - INFO - STEP 6: PREPARE FEATURES AND TARGET
-2026-10-13 12:23:34,646 - INFO - STEP 7: TRAIN-TEST SPLIT
-2026-10-13 12:23:34,647 - INFO - STEP 8: BUILD MACHINE LEARNING MODELS
-2026-10-13 12:23:34,650 - INFO - STEP 9: TRAIN MODELS
-2026-10-13 12:23:35,115 - INFO - Linear Regression training completed
-2026-10-13 12:23:35,327 - INFO - Random Forest training completed
-2026-10-13 12:23:35,328 - INFO - STEP 10: TIME SERIES CROSS VALIDATION
-2026-10-13 12:23:36,161 - INFO - STEP 11: MODEL EVALUATION
-2026-10-13 12:23:36,194 - INFO - STEP 12: SAVE AND DISPLAY OUTPUTS
-2026-10-13 12:23:36,236 - INFO - Output CSV files saved successfully
-2026-10-13 12:23:36,236 - INFO - STEP 13: VISUALIZE PREDICTIONS
-2026-10-13 12:23:36,713 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Actual_vs_Predicted.png
-2026-10-13 12:23:39,266 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Actual_Predicted_Scatter.png
-2026-10-13 12:23:41,507 - INFO - Graph saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\images\Prediction_Error_Distribution.png
-2026-10-13 12:23:42,860 - INFO - STEP 14: SAVE TRAINED MODEL
-2026-10-13 12:23:42,927 - INFO - Trained model saved successfully
-2026-10-13 12:23:42,928 - INFO - STEP 15: SOLAR POWER PREDICTION
-2026-10-13 12:23:43,128 - INFO - Example prediction completed
-2026-10-13 12:23:43,129 - INFO - PROJECT EXECUTED SUCCESSFULLY
+2026-10-17 13:12:55,643 - INFO - SOLAR POWER GENERATION ANALYSIS STARTED
+2026-10-17 13:12:55,644 - INFO - STEP 1: LOAD DATASETS
+2026-10-17 13:12:55,715 - INFO - STEP 2: DATA QUALITY REPORT
+2026-10-17 13:12:55,771 - INFO - STEP 3: UNDERSTAND DATA
+2026-10-17 13:12:55,840 - INFO - STEP 4: DATA PREPROCESSING
+2026-10-17 13:12:55,881 - INFO - Data preprocessing completed
+2026-10-17 13:12:55,882 - INFO - STEP 5: PREPARE ANALYTICS DATASET
+2026-10-17 13:12:55,923 - INFO - STEP 6: BUSINESS KPI ANALYSIS
+2026-10-17 13:12:58,391 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 13:12:58,424 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 13:13:02,375 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 13:13:02,376 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 13:13:04,364 - INFO - STEP 7: EXPLORATORY DATA ANALYSIS
+2026-10-17 13:13:08,845 - INFO - STEP 8: PREPARE ML FEATURES
+2026-10-17 13:13:08,848 - INFO - STEP 9: TRAIN TEST SPLIT
+2026-10-17 13:13:08,849 - INFO - STEP 10: TIME SERIES CROSS VALIDATION
+2026-10-17 13:13:09,873 - INFO - STEP 11: MODEL TRAINING AND EVALUATION
+2026-10-17 13:14:41,893 - INFO - STEP 12: SAVE TRAINED MODEL
+2026-10-17 13:14:41,969 - INFO - STEP 13: EXAMPLE SOLAR POWER PREDICTION
+2026-10-17 13:14:42,144 - INFO - PROJECT COMPLETED SUCCESSFULLY
+2026-10-17 13:19:32,624 - INFO - SOLAR POWER GENERATION ANALYSIS STARTED
+2026-10-17 13:19:32,625 - INFO - STEP 1: LOAD DATASETS
+2026-10-17 13:19:32,683 - INFO - STEP 2: DATA QUALITY REPORT
+2026-10-17 13:19:32,726 - ERROR - Project execution failed
+Traceback (most recent call last):
+  File "c:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\Solar_Power_Generation_Predictor.py", line 913, in main
+    DataQualityReport(
+  File "c:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\Solar_Power_Generation_Predictor.py", line 190, in DataQualityReport
+    SaveCSV(Report_Data, "Data_Quality_Report.csv")
+    ^^^^^^^
+NameError: name 'SaveCSV' is not defined
+2026-10-17 13:21:04,134 - INFO - SOLAR POWER GENERATION ANALYSIS STARTED
+2026-10-17 13:21:04,134 - INFO - STEP 1: LOAD DATASETS
+2026-10-17 13:21:04,194 - INFO - STEP 2: DATA QUALITY REPORT
+2026-10-17 13:21:04,236 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Data_Quality_Report.csv
+2026-10-17 13:21:04,236 - INFO - STEP 3: UNDERSTAND DATA
+2026-10-17 13:21:04,289 - INFO - STEP 4: DATA PREPROCESSING
+2026-10-17 13:21:04,323 - INFO - Data preprocessing completed
+2026-10-17 13:21:04,324 - INFO - STEP 5: PREPARE ANALYTICS DATASET
+2026-10-17 13:21:04,356 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Processed_Solar_Dataset.csv
+2026-10-17 13:21:04,356 - INFO - STEP 6: BUSINESS KPI ANALYSIS
+2026-10-17 13:21:04,361 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Solar_Business_KPIs.csv
+2026-10-17 13:21:04,365 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Daily_Solar_Analysis.csv
+2026-10-17 13:21:04,371 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Monthly_Solar_Analysis.csv
+2026-10-17 13:21:04,375 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Hourly_Solar_Analysis.csv
+2026-10-17 13:21:06,632 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 13:21:06,634 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 13:21:08,703 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 13:21:08,704 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 13:21:10,590 - INFO - STEP 7: EXPLORATORY DATA ANALYSIS
+2026-10-17 13:21:12,119 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Correlation_Report.csv
+2026-10-17 13:21:13,714 - INFO - STEP 8: PREPARE ML FEATURES
+2026-10-17 13:21:13,717 - INFO - STEP 9: TRAIN TEST SPLIT
+2026-10-17 13:21:13,717 - INFO - STEP 10: TIME SERIES CROSS VALIDATION
+2026-10-17 13:21:14,484 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Model_Comparison.csv
+2026-10-17 13:21:14,485 - INFO - STEP 11: MODEL TRAINING AND EVALUATION
+2026-10-17 13:21:14,690 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Evaluation_Metrics.csv
+2026-10-17 13:21:14,692 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Actual_vs_Predicted.csv
+2026-10-17 13:21:17,022 - INFO - STEP 12: SAVE TRAINED MODEL
+2026-10-17 13:21:17,065 - INFO - STEP 13: EXAMPLE SOLAR POWER PREDICTION
+2026-10-17 13:21:17,153 - INFO - PROJECT COMPLETED SUCCESSFULLY
+2026-10-17 17:45:40,481 - INFO - SOLAR POWER GENERATION ANALYSIS STARTED
+2026-10-17 17:45:40,481 - INFO - STEP 1: LOAD DATASETS
+2026-10-17 17:45:40,603 - INFO - STEP 2: DATA QUALITY REPORT
+2026-10-17 17:45:40,687 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Data_Quality_Report.csv
+2026-10-17 17:45:40,689 - INFO - STEP 3: UNDERSTAND DATA
+2026-10-17 17:45:40,764 - INFO - STEP 4: DATA PREPROCESSING
+2026-10-17 17:45:40,809 - INFO - Data preprocessing completed
+2026-10-17 17:45:40,810 - INFO - STEP 5: PREPARE ANALYTICS DATASET
+2026-10-17 17:45:40,863 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Processed_Solar_Dataset.csv
+2026-10-17 17:45:40,863 - INFO - STEP 6: BUSINESS KPI ANALYSIS
+2026-10-17 17:45:40,869 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Solar_Business_KPIs.csv
+2026-10-17 17:45:40,880 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Daily_Solar_Analysis.csv
+2026-10-17 17:45:40,889 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Monthly_Solar_Analysis.csv
+2026-10-17 17:45:40,894 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Hourly_Solar_Analysis.csv
+2026-10-17 17:45:44,090 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 17:45:44,093 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 17:45:46,331 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 17:45:46,332 - INFO - Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-10-17 17:45:47,853 - INFO - STEP 7: EXPLORATORY DATA ANALYSIS
+2026-10-17 17:45:49,831 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Correlation_Report.csv
+2026-10-17 17:45:51,830 - INFO - STEP 8: PREPARE ML FEATURES
+2026-10-17 17:45:51,834 - INFO - STEP 9: TRAIN TEST SPLIT
+2026-10-17 17:45:51,835 - INFO - STEP 10: TIME SERIES CROSS VALIDATION
+2026-10-17 17:45:53,107 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Model_Comparison.csv
+2026-10-17 17:45:53,139 - INFO - STEP 11: MODEL TRAINING AND EVALUATION
+2026-10-17 17:45:53,388 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Evaluation_Metrics.csv
+2026-10-17 17:45:53,391 - INFO - Report saved: C:\Users\vaish\Desktop\Python\Machine_Learning\Solar_Power_Generation\outputs\Actual_vs_Predicted.csv
+2026-10-17 17:45:55,714 - INFO - STEP 12: SAVE TRAINED MODEL
+2026-10-17 17:45:55,817 - INFO - STEP 13: EXAMPLE SOLAR POWER PREDICTION
+2026-10-17 17:45:55,941 - INFO - PROJECT COMPLETED SUCCESSFULLY
