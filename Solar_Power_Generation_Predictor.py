@@ -2,6 +2,9 @@ import logging
 import joblib
 import numpy as np
 import pandas as pd
+
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 from pathlib import Path
@@ -12,7 +15,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # ============================================================
-# PROJECT PATHS - USING PATHLIB ONLY
+# 1. PROJECT PATHS
 # ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -21,18 +24,13 @@ DATA_DIR = BASE_DIR / "data"
 IMAGE_DIR = BASE_DIR / "images"
 OUTPUT_DIR = BASE_DIR / "outputs"
 
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-IMAGE_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+for Folder in [DATA_DIR, IMAGE_DIR, OUTPUT_DIR]:
+    Folder.mkdir(parents=True, exist_ok=True)
 
 GENERATION_PATH = DATA_DIR / "Plant_1_Generation_Data.csv"
 WEATHER_PATH = DATA_DIR / "Plant_1_Weather_Sensor_Data.csv"
 
 LOG_PATH = OUTPUT_DIR / "project.log"
-
-# ============================================================
-# LOGGING
-# ============================================================
 
 logging.basicConfig(
     filename=str(LOG_PATH),
@@ -41,44 +39,47 @@ logging.basicConfig(
     encoding="utf-8"
 )
 
+# ============================================================
+# 2. COMMON FUNCTIONS
+# ============================================================
+
 def DisplayInfo(Message):
 
-    print("\n" + "=" * 70)
+    print("\n" + "=" * 65)
     print(Message)
-    print("=" * 70)
+    print("=" * 65)
 
     logging.info(Message)
-
-# ============================================================
-# COMMON GRAPH HANDLER
-# SAVE GRAPH AND DISPLAY ON SCREEN
-# ============================================================
 
 def SaveAndShowGraph(FileName):
 
     Graph_Path = IMAGE_DIR / FileName
 
     plt.tight_layout()
+    plt.savefig(Graph_Path, dpi=300, bbox_inches="tight")
 
-    plt.savefig(
-        Graph_Path,
-        dpi=300,
-        bbox_inches="tight"
-    )
-
-    print("Graph saved:", Graph_Path)
-    logging.info("Graph saved: %s", Graph_Path)
-
-    plt.show()
+    plt.show(block=True)
     plt.close()
 
+    print("Graph saved:", Graph_Path)
+
+def SaveCSV(DataFrame, FileName):
+
+    File_Path = OUTPUT_DIR / FileName
+
+    DataFrame.to_csv(File_Path, index=False)
+
+    print("Report saved:", File_Path)
+
+    logging.info("Report saved: %s", File_Path)
+
 # ============================================================
-# STEP 1: LOAD DATASET
+# 3. LOAD DATASETS
 # ============================================================
 
 def LoadDataset():
 
-    DisplayInfo("STEP 1: LOAD DATASET")
+    DisplayInfo("STEP 1: LOAD DATASETS")
 
     if not GENERATION_PATH.exists():
         raise FileNotFoundError(
@@ -93,8 +94,8 @@ def LoadDataset():
     Generation_Data = pd.read_csv(GENERATION_PATH)
     Weather_Data = pd.read_csv(WEATHER_PATH)
 
-    print("Generation Dataset Shape:", Generation_Data.shape)
-    print("Weather Dataset Shape:", Weather_Data.shape)
+    print("Generation Shape:", Generation_Data.shape)
+    print("Weather Shape:", Weather_Data.shape)
 
     print("\nGeneration Dataset:")
     print(Generation_Data.head())
@@ -102,55 +103,122 @@ def LoadDataset():
     print("\nWeather Dataset:")
     print(Weather_Data.head())
 
-    logging.info("Datasets loaded successfully")
-
     return Generation_Data, Weather_Data
 
 # ============================================================
-# STEP 2: UNDERSTAND DATASET
+# 4. DATA QUALITY REPORT
+# ============================================================
+
+def DataQualityReport(Generation_Data, Weather_Data):
+
+    DisplayInfo("STEP 2: DATA QUALITY REPORT")
+
+    Datasets = {
+        "Generation": Generation_Data,
+        "Weather": Weather_Data
+    }
+
+    Numeric_Columns = {
+        "Generation": ["AC_POWER"],
+        "Weather": [
+            "AMBIENT_TEMPERATURE",
+            "MODULE_TEMPERATURE",
+            "IRRADIATION"
+        ]
+    }
+
+    Report = []
+
+    for Dataset_Name, Dataset in Datasets.items():
+
+        Duplicate_Count = int(Dataset.duplicated().sum())
+
+        print(f"\n{Dataset_Name} Dataset")
+        print("Rows:", len(Dataset))
+        print("Columns:", len(Dataset.columns))
+        print("Duplicate Rows:", Duplicate_Count)
+
+        for Column in Dataset.columns:
+
+            Missing_Count = int(Dataset[Column].isna().sum())
+
+            Missing_Percent = (
+                Missing_Count / len(Dataset) * 100
+                if len(Dataset) else 0
+            )
+
+            Invalid_Datetime = 0
+            Invalid_Numeric = 0
+
+            if Column == "DATE_TIME":
+
+                Converted = pd.to_datetime(
+                    Dataset[Column], errors="coerce"
+                )
+
+                Invalid_Datetime = int(
+                    (Dataset[Column].notna() & Converted.isna()).sum()
+                )
+
+            if Column in Numeric_Columns[Dataset_Name]:
+
+                Converted = pd.to_numeric(
+                    Dataset[Column], errors="coerce"
+                )
+
+                Invalid_Numeric = int(
+                    (Dataset[Column].notna() & Converted.isna()).sum()
+                )
+
+            Report.append({
+                "Dataset": Dataset_Name,
+                "Column": Column,
+                "Total_Rows": len(Dataset),
+                "Missing_Values": Missing_Count,
+                "Missing_Percent": round(Missing_Percent, 2),
+                "Duplicate_Rows": Duplicate_Count,
+                "Invalid_Datetime": Invalid_Datetime,
+                "Invalid_Numeric": Invalid_Numeric
+            })
+
+    Report_Data = pd.DataFrame(Report)
+
+    SaveCSV(Report_Data, "Data_Quality_Report.csv")
+
+    return Report_Data
+
+# ============================================================
+# 5. UNDERSTAND DATA
 # ============================================================
 
 def UnderstandDataset(Generation_Data, Weather_Data):
 
-    DisplayInfo("STEP 2: UNDERSTAND DATASET")
+    DisplayInfo("STEP 3: UNDERSTAND DATA")
 
-    print("\nGeneration Dataset Information:")
-    Generation_Data.info()
+    for Name, Dataset in [
+        ("Generation", Generation_Data),
+        ("Weather", Weather_Data)
+    ]:
 
-    print("\nWeather Dataset Information:")
-    Weather_Data.info()
+        print(f"\n{Name} Dataset Information:")
+        Dataset.info()
 
-    print("\nGeneration Columns:")
-    print(Generation_Data.columns.tolist())
+        print(f"\n{Name} Missing Values:")
+        print(Dataset.isnull().sum())
 
-    print("\nWeather Columns:")
-    print(Weather_Data.columns.tolist())
+        print(f"\n{Name} Statistical Summary:")
+        print(Dataset.describe(include="all"))
 
-    print("\nGeneration Missing Values:")
-    print(Generation_Data.isnull().sum())
-
-    print("\nWeather Missing Values:")
-    print(Weather_Data.isnull().sum())
-
-    print("\nGeneration Duplicate Rows:",
-          Generation_Data.duplicated().sum())
-
-    print("Weather Duplicate Rows:",
-          Weather_Data.duplicated().sum())
-
-    print("\nGeneration Statistical Summary:")
-    print(Generation_Data.describe())
-
-    print("\nWeather Statistical Summary:")
-    print(Weather_Data.describe())
+        print(f"\n{Name} Columns:")
+        print(Dataset.columns.tolist())
 
 # ============================================================
-# STEP 3: PREPROCESS DATA
+# 6. DATA PREPROCESSING
 # ============================================================
 
 def PreprocessData(Generation_Data, Weather_Data):
 
-    DisplayInfo("STEP 3: DATA PREPROCESSING")
+    DisplayInfo("STEP 4: DATA PREPROCESSING")
 
     Generation_Data = Generation_Data.copy()
     Weather_Data = Weather_Data.copy()
@@ -178,19 +246,18 @@ def PreprocessData(Generation_Data, Weather_Data):
                 f"Missing weather column: {Column}"
             )
 
+    # Convert timestamps
     Generation_Data["DATE_TIME"] = pd.to_datetime(
-        Generation_Data["DATE_TIME"],
-        errors="coerce"
+        Generation_Data["DATE_TIME"], errors="coerce"
     )
 
     Weather_Data["DATE_TIME"] = pd.to_datetime(
-        Weather_Data["DATE_TIME"],
-        errors="coerce"
+        Weather_Data["DATE_TIME"], errors="coerce"
     )
 
+    # Convert numeric columns
     Generation_Data["AC_POWER"] = pd.to_numeric(
-        Generation_Data["AC_POWER"],
-        errors="coerce"
+        Generation_Data["AC_POWER"], errors="coerce"
     )
 
     Numeric_Columns = [
@@ -202,54 +269,61 @@ def PreprocessData(Generation_Data, Weather_Data):
     for Column in Numeric_Columns:
 
         Weather_Data[Column] = pd.to_numeric(
-            Weather_Data[Column],
-            errors="coerce"
+            Weather_Data[Column], errors="coerce"
         )
 
+    # Remove invalid timestamps and target values
     Generation_Data.dropna(
-        subset=["DATE_TIME", "AC_POWER"],
-        inplace=True
+        subset=["DATE_TIME", "AC_POWER"], inplace=True
     )
 
     Weather_Data.dropna(
-        subset=["DATE_TIME"],
-        inplace=True
+        subset=["DATE_TIME"], inplace=True
     )
 
+    # Remove duplicate rows
     Generation_Data.drop_duplicates(inplace=True)
     Weather_Data.drop_duplicates(inplace=True)
 
+    # Remove physically invalid negative values
     Generation_Data = Generation_Data[
         Generation_Data["AC_POWER"] >= 0
-    ]
+    ].copy()
 
     Weather_Data = Weather_Data[
         Weather_Data["IRRADIATION"] >= 0
-    ]
+    ].copy()
 
+    # Fill missing weather values with median
     for Column in Numeric_Columns:
 
-        Weather_Data[Column] = Weather_Data[Column].fillna(
-            Weather_Data[Column].median()
+        Median_Value = Weather_Data[Column].median()
+
+        if pd.notna(Median_Value):
+            Weather_Data[Column] = (
+                Weather_Data[Column].fillna(Median_Value)
+            )
+
+    # Remove records with remaining required missing values
+    Weather_Data.dropna(
+        subset=Numeric_Columns, inplace=True
+    )
+
+    if Generation_Data.empty or Weather_Data.empty:
+        raise ValueError(
+            "No valid records remain after preprocessing."
         )
 
-    print(
-        "\nGeneration Shape After Cleaning:",
-        Generation_Data.shape
-    )
+    print("Generation rows after cleaning:", len(Generation_Data))
+    print("Weather rows after cleaning:", len(Weather_Data))
 
     print(
-        "Weather Shape After Cleaning:",
-        Weather_Data.shape
-    )
-
-    print(
-        "\nRemaining Generation Missing Values:",
+        "Generation missing values:",
         Generation_Data.isnull().sum().sum()
     )
 
     print(
-        "Remaining Weather Missing Values:",
+        "Weather missing values:",
         Weather_Data.isnull().sum().sum()
     )
 
@@ -258,68 +332,20 @@ def PreprocessData(Generation_Data, Weather_Data):
     return Generation_Data, Weather_Data
 
 # ============================================================
-# STEP 4: EXPLORATORY DATA ANALYSIS
+# 7. PREPARE ANALYTICS DATASET
 # ============================================================
 
-def PerformEDA(Generation_Data, Weather_Data):
+def PrepareAnalyticsData(Generation_Data, Weather_Data):
 
-    DisplayInfo("STEP 4: EXPLORATORY DATA ANALYSIS")
+    DisplayInfo("STEP 5: PREPARE ANALYTICS DATASET")
 
-    # Graph 1: Power Distribution
-
-    plt.figure(figsize=(8, 5))
-
-    plt.hist(
-        Generation_Data["AC_POWER"],
-        bins=30,
-        edgecolor="black"
-    )
-
-    plt.title("AC Power Distribution")
-    plt.xlabel("AC Power")
-    plt.ylabel("Frequency")
-
-    SaveAndShowGraph("Power_Distribution.png")
-
-    # Graph 2: Irradiation Distribution
-
-    plt.figure(figsize=(8, 5))
-
-    plt.hist(
-        Weather_Data["IRRADIATION"],
-        bins=30,
-        edgecolor="black"
-    )
-
-    plt.title("Solar Irradiation Distribution")
-    plt.xlabel("Irradiation")
-    plt.ylabel("Frequency")
-
-    SaveAndShowGraph("Irradiation_Distribution.png")
-
-    # Graph 3: Irradiation vs Module Temperature
-
-    plt.figure(figsize=(8, 5))
-
-    plt.scatter(
-        Weather_Data["IRRADIATION"],
-        Weather_Data["MODULE_TEMPERATURE"],
-        alpha=0.5
-    )
-
-    plt.title("Irradiation vs Module Temperature")
-    plt.xlabel("Irradiation")
-    plt.ylabel("Module Temperature")
-
-    SaveAndShowGraph("Irradiation_vs_Temperature.png")
-
-    # Prepare timestamp-aligned data for correlation
-
+    # Sum inverter power readings for each timestamp
     Generation_Aggregated = (
         Generation_Data.groupby("DATE_TIME", as_index=False)
         ["AC_POWER"].sum()
     )
 
+    # Average weather sensor readings at each timestamp
     Weather_Aggregated = (
         Weather_Data.groupby("DATE_TIME", as_index=False)[
             [
@@ -330,14 +356,222 @@ def PerformEDA(Generation_Data, Weather_Data):
         ].mean()
     )
 
-    EDA_Data = pd.merge(
+    # Join generation and weather data
+    Data = pd.merge(
         Generation_Aggregated,
         Weather_Aggregated,
         on="DATE_TIME",
-        how="inner"
+        how="inner",
+        validate="one_to_one"
     )
 
-    Correlation = EDA_Data[
+    Data.sort_values("DATE_TIME", inplace=True)
+    Data.reset_index(drop=True, inplace=True)
+
+    if Data.empty:
+        raise ValueError(
+            "No matching timestamps found in the two datasets."
+        )
+
+    # Time-based features
+    Data["HOUR"] = Data["DATE_TIME"].dt.hour
+    Data["MINUTE"] = Data["DATE_TIME"].dt.minute
+    Data["DAY"] = Data["DATE_TIME"].dt.day
+    Data["MONTH"] = Data["DATE_TIME"].dt.month
+    Data["YEAR"] = Data["DATE_TIME"].dt.year
+    Data["DATE"] = Data["DATE_TIME"].dt.date
+
+    print("\nMerged Dataset Shape:", Data.shape)
+    print(Data.head())
+
+    SaveCSV(Data, "Processed_Solar_Dataset.csv")
+
+    return Data
+
+# ============================================================
+# 8. BUSINESS KPI ANALYSIS
+# ============================================================
+
+def BusinessKPIAnalysis(Data):
+
+    DisplayInfo("STEP 6: BUSINESS KPI ANALYSIS")
+
+    KPIs = pd.DataFrame([{
+        "Total_Records": len(Data),
+        "Average_AC_Power": Data["AC_POWER"].mean(),
+        "Maximum_AC_Power": Data["AC_POWER"].max(),
+        "Minimum_AC_Power": Data["AC_POWER"].min(),
+        "Average_Irradiation": Data["IRRADIATION"].mean(),
+        "Average_Module_Temperature":
+            Data["MODULE_TEMPERATURE"].mean(),
+        "Average_Ambient_Temperature":
+            Data["AMBIENT_TEMPERATURE"].mean()
+    }])
+
+    print("\nSOLAR BUSINESS KPIs")
+    print(KPIs.round(3).to_string(index=False))
+
+    SaveCSV(KPIs, "Solar_Business_KPIs.csv")
+
+    # Daily power summary
+    Daily_Report = (
+        Data.groupby("DATE", as_index=False)
+        .agg(
+            Average_AC_Power=("AC_POWER", "mean"),
+            Peak_AC_Power=("AC_POWER", "max"),
+            Minimum_AC_Power=("AC_POWER", "min"),
+            Average_Irradiation=("IRRADIATION", "mean"),
+            Average_Module_Temperature=(
+                "MODULE_TEMPERATURE", "mean"
+            ),
+            Records=("AC_POWER", "size")
+        )
+    )
+
+    Daily_Report["DATE"] = Daily_Report["DATE"].astype(str)
+
+    SaveCSV(Daily_Report, "Daily_Solar_Analysis.csv")
+
+    # Monthly power summary
+    Monthly_Report = (
+        Data.groupby(["YEAR", "MONTH"], as_index=False)
+        .agg(
+            Average_AC_Power=("AC_POWER", "mean"),
+            Peak_AC_Power=("AC_POWER", "max"),
+            Average_Irradiation=("IRRADIATION", "mean"),
+            Average_Module_Temperature=(
+                "MODULE_TEMPERATURE", "mean"
+            ),
+            Records=("AC_POWER", "size")
+        )
+    )
+
+    SaveCSV(Monthly_Report, "Monthly_Solar_Analysis.csv")
+
+    # Hourly analysis
+    Hourly_Report = (
+        Data.groupby("HOUR", as_index=False)
+        .agg(
+            Average_AC_Power=("AC_POWER", "mean"),
+            Peak_AC_Power=("AC_POWER", "max"),
+            Average_Irradiation=("IRRADIATION", "mean")
+        )
+    )
+
+    SaveCSV(Hourly_Report, "Hourly_Solar_Analysis.csv")
+
+    Peak_Day = Daily_Report.loc[
+        Daily_Report["Average_AC_Power"].idxmax()
+    ]
+
+    Peak_Hour = Hourly_Report.loc[
+        Hourly_Report["Average_AC_Power"].idxmax()
+    ]
+
+    print("\nBUSINESS INSIGHTS")
+
+    print(
+        "Highest average-power date:",
+        Peak_Day["DATE"]
+    )
+
+    print(
+        "Highest average-power hour:",
+        int(Peak_Hour["HOUR"])
+    )
+
+    print(
+        "Average AC power:",
+        round(Data["AC_POWER"].mean(), 3)
+    )
+
+    print(
+        "Average irradiation:",
+        round(Data["IRRADIATION"].mean(), 3)
+    )
+
+    # Hourly power chart
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(
+        Hourly_Report["HOUR"],
+        Hourly_Report["Average_AC_Power"],
+        marker="o"
+    )
+
+    plt.title("Average Solar Power by Hour")
+    plt.xlabel("Hour of Day")
+    plt.ylabel("Average AC Power")
+    plt.xticks(range(0, 24, 2))
+    plt.grid(True, alpha=0.3)
+
+    SaveAndShowGraph("Hourly_Solar_Power.png")
+
+    # Daily power chart
+    plt.figure(figsize=(12, 5))
+
+    plt.plot(
+        Daily_Report["DATE"],
+        Daily_Report["Average_AC_Power"],
+        marker="o"
+    )
+
+    plt.title("Daily Average Solar Power")
+    plt.xlabel("Date")
+    plt.ylabel("Average AC Power")
+    plt.xticks(rotation=45)
+    plt.grid(True, alpha=0.3)
+
+    SaveAndShowGraph("Daily_Solar_Power.png")
+
+    # Monthly power chart
+    Monthly_Labels = (
+        Monthly_Report["YEAR"].astype(str)
+        + "-"
+        + Monthly_Report["MONTH"].astype(str).str.zfill(2)
+    )
+
+    plt.figure(figsize=(10, 5))
+
+    plt.bar(
+        Monthly_Labels,
+        Monthly_Report["Average_AC_Power"]
+    )
+
+    plt.title("Monthly Average Solar Power")
+    plt.xlabel("Year-Month")
+    plt.ylabel("Average AC Power")
+    plt.xticks(rotation=45)
+
+    SaveAndShowGraph("Monthly_Solar_Power.png")
+
+    return Daily_Report, Monthly_Report, Hourly_Report
+
+# ============================================================
+# 9. EXPLORATORY DATA ANALYSIS
+# ============================================================
+
+def PerformEDA(Data):
+
+    DisplayInfo("STEP 7: EXPLORATORY DATA ANALYSIS")
+
+    # Irradiation vs power
+    plt.figure(figsize=(8, 5))
+
+    plt.scatter(
+        Data["IRRADIATION"],
+        Data["AC_POWER"],
+        alpha=0.5
+    )
+
+    plt.title("Irradiation vs AC Power")
+    plt.xlabel("Irradiation")
+    plt.ylabel("AC Power")
+
+    SaveAndShowGraph("Irradiation_vs_Power.png")
+
+    # Correlation matrix
+    Correlation = Data[
         [
             "AC_POWER",
             "AMBIENT_TEMPERATURE",
@@ -346,10 +580,13 @@ def PerformEDA(Generation_Data, Weather_Data):
         ]
     ].corr()
 
-    print("\nCorrelation Matrix:")
+    print("\nCORRELATION MATRIX")
     print(Correlation.round(3))
 
-    # Graph 4: Correlation Heatmap
+    SaveCSV(
+        Correlation.reset_index(names="Feature"),
+        "Correlation_Report.csv"
+    )
 
     plt.figure(figsize=(8, 6))
 
@@ -375,12 +612,10 @@ def PerformEDA(Generation_Data, Weather_Data):
     )
 
     for i in range(len(Correlation.columns)):
-
         for j in range(len(Correlation.columns)):
 
             plt.text(
-                j,
-                i,
+                j, i,
                 f"{Correlation.iloc[i, j]:.2f}",
                 ha="center",
                 va="center"
@@ -391,66 +626,12 @@ def PerformEDA(Generation_Data, Weather_Data):
     SaveAndShowGraph("Correlation_Heatmap.png")
 
 # ============================================================
-# STEP 5: FEATURE ENGINEERING
+# 10. PREPARE ML FEATURES
 # ============================================================
 
-def FeatureEngineering(Generation_Data, Weather_Data):
+def PrepareFeatures(Data):
 
-    DisplayInfo("STEP 5: FEATURE ENGINEERING")
-
-    Generation_Aggregated = (
-        Generation_Data.groupby("DATE_TIME", as_index=False)
-        ["AC_POWER"].sum()
-    )
-
-    Weather_Aggregated = (
-        Weather_Data.groupby("DATE_TIME", as_index=False)[
-            [
-                "AMBIENT_TEMPERATURE",
-                "MODULE_TEMPERATURE",
-                "IRRADIATION"
-            ]
-        ].mean()
-    )
-
-    Data = pd.merge(
-        Generation_Aggregated,
-        Weather_Aggregated,
-        on="DATE_TIME",
-        how="inner"
-    )
-
-    Data.sort_values("DATE_TIME", inplace=True)
-    Data.reset_index(drop=True, inplace=True)
-
-    Data["HOUR"] = Data["DATE_TIME"].dt.hour
-    Data["MINUTE"] = Data["DATE_TIME"].dt.minute
-    Data["DAY"] = Data["DATE_TIME"].dt.day
-    Data["MONTH"] = Data["DATE_TIME"].dt.month
-
-    Data.dropna(inplace=True)
-
-    Processed_Path = OUTPUT_DIR / "Processed_Solar_Dataset.csv"
-
-    Data.to_csv(Processed_Path, index=False)
-
-    print("\nProcessed Dataset:")
-    print(Data.head(10).to_string(index=False))
-
-    print("\nProcessed Dataset Shape:", Data.shape)
-    print("Processed Dataset saved:", Processed_Path)
-
-    logging.info("Feature engineering completed")
-
-    return Data
-
-# ============================================================
-# STEP 6: PREPARE FEATURES AND TARGET
-# ============================================================
-
-def PrepareData(Data):
-
-    DisplayInfo("STEP 6: PREPARE FEATURES AND TARGET")
+    DisplayInfo("STEP 8: PREPARE ML FEATURES")
 
     Feature_Columns = [
         "AMBIENT_TEMPERATURE",
@@ -465,27 +646,25 @@ def PrepareData(Data):
     X = Data[Feature_Columns].copy()
     Y = Data["AC_POWER"].copy()
 
-    print("Feature Columns:", Feature_Columns)
-    print("Target Column: AC_POWER")
-    print("X Shape:", X.shape)
-    print("Y Shape:", Y.shape)
+    print("Features:", Feature_Columns)
+    print("Target: AC_POWER")
+    print("Feature Shape:", X.shape)
 
     return X, Y, Feature_Columns
 
 # ============================================================
-# STEP 7: TRAIN-TEST SPLIT
+# 11. TIME-BASED TRAIN TEST SPLIT
 # ============================================================
 
 def SplitData(X, Y):
 
-    DisplayInfo("STEP 7: TRAIN-TEST SPLIT")
+    DisplayInfo("STEP 9: TRAIN TEST SPLIT")
 
     Split_Index = int(len(X) * 0.80)
 
-    if Split_Index <= 0 or Split_Index >= len(X):
-
+    if Split_Index < 2 or Split_Index >= len(X):
         raise ValueError(
-            "Not enough rows for train-test split."
+            "Not enough records for train-test split."
         )
 
     X_Train = X.iloc[:Split_Index]
@@ -500,14 +679,12 @@ def SplitData(X, Y):
     return X_Train, X_Test, Y_Train, Y_Test
 
 # ============================================================
-# STEP 8: BUILD MODELS
+# 12. BUILD AND COMPARE MODELS
 # ============================================================
 
 def BuildModels():
 
-    DisplayInfo("STEP 8: BUILD MACHINE LEARNING MODELS")
-
-    Models = {
+    return {
         "Linear Regression": LinearRegression(),
 
         "Random Forest": RandomForestRegressor(
@@ -517,49 +694,13 @@ def BuildModels():
         )
     }
 
-    print("Models Created:")
-
-    for Model_Name in Models:
-        print("-", Model_Name)
-
-    return Models
-
-# ============================================================
-# STEP 9: TRAIN MODELS
-# ============================================================
-
-def TrainModels(Models, X_Train, Y_Train):
-
-    DisplayInfo("STEP 9: TRAIN MODELS")
-
-    Trained_Models = {}
-
-    for Model_Name, Model in Models.items():
-
-        print(f"\nTraining {Model_Name}...")
-
-        Model.fit(X_Train, Y_Train)
-
-        Trained_Models[Model_Name] = Model
-
-        print(f"{Model_Name} training completed.")
-
-        logging.info("%s training completed", Model_Name)
-
-    return Trained_Models
-
-# ============================================================
-# STEP 10: CROSS VALIDATION
-# ============================================================
-
-def CrossValidateModels(Models, X_Train, Y_Train):
+def CompareModels(Models, X_Train, Y_Train):
 
     DisplayInfo("STEP 10: TIME SERIES CROSS VALIDATION")
 
     if len(X_Train) < 3:
-
         raise ValueError(
-            "Not enough training rows for cross-validation."
+            "Not enough training records for cross-validation."
         )
 
     Number_Of_Splits = min(5, len(X_Train) - 1)
@@ -568,11 +709,11 @@ def CrossValidateModels(Models, X_Train, Y_Train):
         n_splits=Number_Of_Splits
     )
 
-    CV_Results = {}
+    Results = []
 
     for Model_Name, Model in Models.items():
 
-        print(f"\nCross-validating {Model_Name}...")
+        print("\nEvaluating:", Model_Name)
 
         Scores = cross_val_score(
             Model,
@@ -584,27 +725,42 @@ def CrossValidateModels(Models, X_Train, Y_Train):
 
         Mean_MAE = -Scores.mean()
 
-        CV_Results[Model_Name] = Mean_MAE
+        Results.append({
+            "Model": Model_Name,
+            "CV_MAE": Mean_MAE
+        })
 
         print("Fold MAE:", np.round(-Scores, 3))
         print("Mean CV MAE:", round(Mean_MAE, 3))
 
-    Best_Model_Name = min(
-        CV_Results,
-        key=CV_Results.get
-    )
+    Comparison = pd.DataFrame(Results)
 
-    print("\nBest Model Based on CV MAE:", Best_Model_Name)
+    SaveCSV(Comparison, "Model_Comparison.csv")
 
-    return CV_Results, Best_Model_Name
+    Best_Model_Name = Comparison.loc[
+        Comparison["CV_MAE"].idxmin(), "Model"
+    ]
+
+    print("\nBest Model:", Best_Model_Name)
+
+    return Comparison, Best_Model_Name
 
 # ============================================================
-# STEP 11: EVALUATE MODEL
+# 13. TRAIN AND EVALUATE BEST MODEL
 # ============================================================
 
-def EvaluateModel(Model, X_Test, Y_Test, Model_Name):
+def EvaluateModel(
+    Model,
+    Model_Name,
+    X_Train,
+    X_Test,
+    Y_Train,
+    Y_Test
+):
 
-    DisplayInfo("STEP 11: MODEL EVALUATION")
+    DisplayInfo("STEP 11: MODEL TRAINING AND EVALUATION")
+
+    Model.fit(X_Train, Y_Train)
 
     Predictions = Model.predict(X_Test)
 
@@ -616,27 +772,19 @@ def EvaluateModel(Model, X_Test, Y_Test, Model_Name):
 
     R2 = r2_score(Y_Test, Predictions)
 
-    Metrics = {
+    Metrics = pd.DataFrame([{
         "Model": Model_Name,
         "MAE": MAE,
         "RMSE": RMSE,
         "R2_Score": R2
-    }
+    }])
 
-    print("Selected Model:", Model_Name)
+    print("\nSelected Model:", Model_Name)
     print(f"MAE: {MAE:.4f}")
     print(f"RMSE: {RMSE:.4f}")
     print(f"R2 Score: {R2:.4f}")
 
-    return Predictions, Metrics
-
-# ============================================================
-# STEP 12: SAVE OUTPUT FILES AND DISPLAY RESULTS
-# ============================================================
-
-def SaveResults(Y_Test, Predictions, CV_Results, Metrics):
-
-    DisplayInfo("STEP 12: SAVE AND DISPLAY OUTPUTS")
+    SaveCSV(Metrics, "Evaluation_Metrics.csv")
 
     Results = pd.DataFrame({
         "Actual_Power": np.asarray(Y_Test),
@@ -644,55 +792,14 @@ def SaveResults(Y_Test, Predictions, CV_Results, Metrics):
     })
 
     Results["Error"] = (
-        Results["Actual_Power"] -
-        Results["Predicted_Power"]
+        Results["Actual_Power"]
+        - Results["Predicted_Power"]
     )
 
-    Comparison = pd.DataFrame(
-        list(CV_Results.items()),
-        columns=["Model", "CV_MAE"]
-    )
+    SaveCSV(Results, "Actual_vs_Predicted.csv")
 
-    Metrics_Data = pd.DataFrame([Metrics])
-
-    Results_Path = OUTPUT_DIR / "Actual_vs_Predicted.csv"
-    Comparison_Path = OUTPUT_DIR / "Model_Comparison.csv"
-    Metrics_Path = OUTPUT_DIR / "Evaluation_Metrics.csv"
-
-    Results.to_csv(Results_Path, index=False)
-    Comparison.to_csv(Comparison_Path, index=False)
-    Metrics_Data.to_csv(Metrics_Path, index=False)
-
-    print("\nACTUAL VS PREDICTED POWER (FIRST 10 ROWS)")
-    print(Results.head(10).round(3).to_string(index=False))
-
-    print("\nMODEL COMPARISON")
-    print(Comparison.round(4).to_string(index=False))
-
-    print("\nEVALUATION METRICS")
-    print(Metrics_Data.round(4).to_string(index=False))
-
-    print("\nOutput Files Saved:")
-    print(Results_Path)
-    print(Comparison_Path)
-    print(Metrics_Path)
-
-    logging.info("Output CSV files saved successfully")
-
-    return Results
-
-# ============================================================
-# STEP 13: VISUALIZE PREDICTIONS
-# SAVE AND SHOW EVERY GRAPH
-# ============================================================
-
-def VisualizePredictions(Results):
-
-    DisplayInfo("STEP 13: VISUALIZE PREDICTIONS")
-
-    # Graph 5: Actual vs Predicted Line Graph
-
-    plt.figure(figsize=(12, 6))
+    # Actual vs predicted line chart
+    plt.figure(figsize=(12, 5))
 
     plt.plot(
         Results["Actual_Power"].to_numpy()[:200],
@@ -711,56 +818,16 @@ def VisualizePredictions(Results):
 
     SaveAndShowGraph("Actual_vs_Predicted.png")
 
-    # Graph 6: Actual vs Predicted Scatter Plot
+    return Model, Results
 
-    plt.figure(figsize=(7, 6))
-
-    plt.scatter(
-        Results["Actual_Power"],
-        Results["Predicted_Power"],
-        alpha=0.6
-    )
-
-    Maximum = max(
-        Results["Actual_Power"].max(),
-        Results["Predicted_Power"].max()
-    )
-
-    plt.plot(
-        [0, Maximum],
-        [0, Maximum],
-        linestyle="--"
-    )
-
-    plt.title("Actual vs Predicted Power Scatter Plot")
-    plt.xlabel("Actual Power")
-    plt.ylabel("Predicted Power")
-
-    SaveAndShowGraph("Actual_Predicted_Scatter.png")
-
-    # Graph 7: Prediction Error Distribution
-
-    plt.figure(figsize=(8, 5))
-
-    plt.hist(
-        Results["Error"],
-        bins=30,
-        edgecolor="black"
-    )
-
-    plt.title("Prediction Error Distribution")
-    plt.xlabel("Actual Power - Predicted Power")
-    plt.ylabel("Frequency")
-
-    SaveAndShowGraph("Prediction_Error_Distribution.png")
 
 # ============================================================
-# STEP 14: SAVE TRAINED MODEL
+# 14. SAVE MODEL
 # ============================================================
 
 def SaveModel(Model, Model_Name, Feature_Columns):
 
-    DisplayInfo("STEP 14: SAVE TRAINED MODEL")
+    DisplayInfo("STEP 12: SAVE TRAINED MODEL")
 
     Model_Path = OUTPUT_DIR / "Solar_Power_Model.pkl"
 
@@ -772,19 +839,17 @@ def SaveModel(Model, Model_Name, Feature_Columns):
 
     joblib.dump(Model_Package, Model_Path)
 
-    print("Trained Model Saved:", Model_Path)
-
-    logging.info("Trained model saved successfully")
+    print("Model saved:", Model_Path)
 
     return Model_Path
 
 # ============================================================
-# STEP 15: PREDICT SOLAR POWER
+# 15. EXAMPLE PREDICTION
 # ============================================================
 
 def PredictPower(Model_Path):
 
-    DisplayInfo("STEP 15: SOLAR POWER PREDICTION")
+    DisplayInfo("STEP 13: EXAMPLE SOLAR POWER PREDICTION")
 
     Model_Package = joblib.load(Model_Path)
 
@@ -803,124 +868,103 @@ def PredictPower(Model_Path):
 
     New_Data = New_Data[Feature_Columns]
 
-    Predicted_Power = Model.predict(New_Data)[0]
+    Prediction = float(Model.predict(New_Data)[0])
 
     print("\nExample Input:")
     print(New_Data.to_string(index=False))
 
-    print(
-        "\nPredicted AC Power:",
-        round(float(Predicted_Power), 3)
-    )
+    print("\nPredicted AC Power:", round(Prediction, 3))
 
     print(
-        "\nNote: This is an example prediction "
-        "using sample input values."
+        "Note: This is an example prediction, "
+        "not a guaranteed real-world output."
     )
-
-    logging.info("Example prediction completed")
-
-    return Predicted_Power
 
 # ============================================================
-# MAIN FUNCTION
+# 16. MAIN FUNCTION
 # ============================================================
 
 def main():
 
     try:
 
-        DisplayInfo("SOLAR POWER GENERATION PREDICTOR STARTED")
+        DisplayInfo("SOLAR POWER GENERATION ANALYSIS STARTED")
 
-        # Step 1
+        # Load datasets
         Generation_Data, Weather_Data = LoadDataset()
 
-        # Step 2
+        # Data quality report
+        DataQualityReport(
+            Generation_Data,
+            Weather_Data
+        )
+
+        # Understand datasets
         UnderstandDataset(
             Generation_Data,
             Weather_Data
         )
 
-        # Step 3
+        # Clean datasets
         Generation_Data, Weather_Data = PreprocessData(
             Generation_Data,
             Weather_Data
         )
 
-        # Step 4
-        PerformEDA(
-            Generation_Data,
-            Weather_Data
-        )
-
-        # Step 5
-        Data = FeatureEngineering(
+        # Prepare joined dataset
+        Data = PrepareAnalyticsData(
             Generation_Data,
             Weather_Data
         )
 
         if len(Data) < 10:
-
             raise ValueError(
-                "Too few merged records. Check DATE_TIME values "
-                "in both datasets."
+                "Too few matching timestamps for analysis."
             )
 
-        # Step 6
-        X, Y, Feature_Columns = PrepareData(Data)
+        # Business analytics
+        BusinessKPIAnalysis(Data)
 
-        # Step 7
+        # EDA
+        PerformEDA(Data)
+
+        # Prepare ML data
+        X, Y, Feature_Columns = PrepareFeatures(Data)
+
         X_Train, X_Test, Y_Train, Y_Test = SplitData(X, Y)
 
-        # Step 8
+        # Compare models with time-series CV
         Models = BuildModels()
 
-        # Step 9
-        Trained_Models = TrainModels(
+        Comparison, Best_Model_Name = CompareModels(
             Models,
             X_Train,
             Y_Train
         )
 
-        # Step 10
-        CV_Results, Best_Model_Name = CrossValidateModels(
-            Trained_Models,
+        Best_Model = Models[Best_Model_Name]
+
+        # Train best model and evaluate test performance
+        Trained_Model, Results = EvaluateModel(
+            Best_Model,
+            Best_Model_Name,
             X_Train,
-            Y_Train
-        )
-
-        # Step 11
-        Best_Model = Trained_Models[Best_Model_Name]
-
-        Predictions, Metrics = EvaluateModel(
-            Best_Model,
             X_Test,
-            Y_Test,
-            Best_Model_Name
+            Y_Train,
+            Y_Test
         )
 
-        # Step 12
-        Results = SaveResults(
-            Y_Test,
-            Predictions,
-            CV_Results,
-            Metrics
-        )
-
-        # Step 13
-        VisualizePredictions(Results)
-
-        # Step 14
+        # Save model
         Model_Path = SaveModel(
-            Best_Model,
+            Trained_Model,
             Best_Model_Name,
             Feature_Columns
         )
 
-        # Step 15
+        # Example prediction
         PredictPower(Model_Path)
 
-        DisplayInfo("PROJECT EXECUTED SUCCESSFULLY")
+        DisplayInfo("PROJECT COMPLETED SUCCESSFULLY")
 
         print("\nImages Folder:", IMAGE_DIR)
         print("Outputs Folder:", OUTPUT_DIR)
@@ -930,9 +974,8 @@ def main():
         logging.exception("Project execution failed")
 
         print("\nERROR:", Error)
-
         print(
-            "\nCheck the dataset paths, CSV column names, "
+            "Check CSV paths, column names, "
             "and outputs/project.log."
         )
 
